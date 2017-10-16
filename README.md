@@ -71,3 +71,61 @@ OUTPUT:  *.DNAcopyout.up_p file with regions of significant coverage difference 
 				\/
        		<< p-fragments >>
 
+**_Stage by stage usage example_**
+
+*prepare input data*
+	cd DifCover
+	cp ./dif_cover_scripts/run_difcover.sh test_data/
+	cd test_data/
+
+Open run_difcover.sh in text editor. Set FOLDER_PATH to a path to the directory  dif_cover_scripts/
+
+FOLDER_PATH=../dif_cover_scripts
+
+**run stage (1)**
+
+	$FOLDER_PATH/from_bams_to_unionbed.sh sample1.bam sample2.bam
+
+   OUPUT: sample1_sample2.unionbedcv 
+          ref.length.Vk1s_sorted     //keep it for following stages
+	       
+   NOTES: This script calls different functions from BEDTOOLS. File sample1_sample2.unionbedcv stores coverage information from both samples, allowing coverage comparisons between them.
+
+**run stage (2)**
+
+	$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv 10 219 10 240 1000 500
+* Item 1	
+a=10 	minimum coverage for sample1
+   
+   A=219	maximum coverage for sample1
+   
+   b=10		minimum coverage for sample2
+   
+   B=240	maximum coverage for sample2
+   
+   v=1000 	target number of valid bases in the window
+   
+   l=500	minimum size of window to output (window includes valid and non valid bases)
+
+NOTES:
+   1. The program will merge bed intervals constructing stretched windows with v valid bases.
+   
+   2. Valid bases satisfy following conditions  
+   
+		1) _C1_ < A and _C2_ < B       **and** 2) _C1_ > a or _C2_ > b.
+		
+   3.  Each window has approximately v valid bases, but because window is formed from bed intervals it can have
+   
+        - fewer than v bases – in a case if the window hits the end of the scaffold
+	- more than v bases – to avoid breaking of the last added bed interval
+   
+   4. For each window the program computes
+
+Q1 – average coverage of valid bases across all merged bed intervals for sample1  
+Q2 – average coverage of valid bases across all merged bed intervals for sample2
+	W1 – is sum of coverages of merged bed interval for sample1
+	W2 – is sum of coverages of merged bed interval for sample2
+	R = W1/W2, if W2>0
+	R = W1/CC0, if W2=0 .
+	If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.
+
