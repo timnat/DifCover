@@ -22,3 +22,52 @@ INPUT: two coordinate sorted BAM files presenting short read alignments from two
 
 OUTPUT: *.DNAcopyout.upp file with regions of significant coverage difference (p-fragments).  Format details can be found in the next section.
 
+Download DifCover
+
+Copy file DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files and replace parameters with your values
+
+	FOLDER_PATH='path to dif_cover_scripts directory'
+	BAM1='path to sample1.bam'
+	BAM2='path to sample2.bam'
+	a=10		# minimum coverage for sample1
+	A=219		# maximum coverage for sample1
+	b=10		# minimum coverage for sample2
+	B=240		# maximum coverage for sample2
+	v=1000	# target number of valid bases in stretched windows
+	l=500		# minimum size of window to output
+	AC=1.095	# Adjustment Coefficient (set AC to 1, if modal coverage is equal) 
+	p=2		# enrichment scores threshold (for p=2 will report regions with coverage in sample1 being roughly 4 times larger than coverage in sample2)
+	bin=1		# for an auxiliary analytical stage (5); generates enrichment scores histogram with scores in bins with floating precision 1. For more detailed histogram use 10, 100.
+
+Run entire pipeline
+
+./run_difcover.sh
+
+### Pipeline overview and stage by stage usage example
+The DifCover pipeline includes several bash scripts and one C++ program. They can be run separately stage by stage, to experiment with parameters, or run in a bulk from run_difcover.sh with predefined in it parameters.
+
+INPUT: coordinate sorted bam files for two samples and mandatory parameters (explained for each stage below) 
+OUTPUT:  *.DNAcopyout.up_p file with regions of significant coverage difference (p-fragments)
+                   Intermediate files (explained for each stage below)
+
+ 	<<  sample1.bam, sample2.bam, a, A, b, B, v, l, AC, p >>
+ 
+        	                \/
+			
+   	(1)  from_bams_to_unionbed.sh  (sample1.bam, sample2.bam)
+   
+				\/
+				
+   	(2)  from_unionbed_to_ratio_per_window (a, A, b, B, v, l)
+	
+				\/
+				
+   	(3)  from_ratio_per_window__to__DNAcopy_output.sh (AC)
+	
+				\/
+				
+	(4)  from_DNAcopyout_to_p_fragments.sh (p)
+
+				\/
+       		<< p-fragments >>
+
