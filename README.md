@@ -94,29 +94,23 @@ FOLDER_PATH=../dif_cover_scripts
 **run stage (2)**
 
 	$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv 10 219 10 240 1000 500
-* Item 1	
-a=10 	minimum coverage for sample1
-   
-   A=219	maximum coverage for sample1
-   
-   b=10		minimum coverage for sample2
-   
-   B=240	maximum coverage for sample2
-   
-   v=1000 	target number of valid bases in the window
-   
-   l=500	minimum size of window to output (window includes valid and non valid bases)
+* a=10 	minimum coverage for sample1
+* A=219	maximum coverage for sample1
+* b=10	minimum coverage for sample2
+* B=240	maximum coverage for sample2
+* v=1000 target number of valid bases in the window
+* l=500	minimum size of window to output (window includes valid and non valid bases)
 
 NOTES:
    1. The program will merge bed intervals constructing stretched windows with v valid bases.
    
    2. Valid bases satisfy following conditions  
    
-		1) _C1_ < A and _C2_ < B       **and** 2) _C1_ > a or _C2_ > b.
+          1) _C1_ < A and _C2_ < B       **and** 2) _C1_ > a or _C2_ > b.
 		
    3.  Each window has approximately v valid bases, but because window is formed from bed intervals it can have
    
-        * - fewer than v bases – in a case if the window hits the end of the scaffold
+   	* - fewer than v bases – in a case if the window hits the end of the scaffold
 	* - more than v bases – to avoid breaking of the last added bed interval
    
    4. For each window the program computes
@@ -140,3 +134,20 @@ If coverage of sample2 is zero for a given window, the program employs a conserv
 OUTPUT: sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500
 
 Columns are: scaffold, window_start, size_of_window, number_of_valid_bases_in_window, Q1, Q2, R
+
+**run stage (3)**
+$FOLDER_PATH/from_ratio_per_window__to__DNAcopy_output.sh sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500 1.095
+
+NOTES:
+
+	1. AC = 1.095 is an Adjustment Coefficient that allows to take in an account initial difference in the amount of sampling or produced coverage for each sample. We recommend compute AC as (modal coverage of sample2) : (modal coverage of sample1). Modal coverage can be calculated using generated with samtools stats histogram for per base coverage (samtools stats sampe1.bam | grep). 
+	
+	2. First, the enrichment score log2[AC*R] is calculated for each window. Second, DNAcopy merges windows with similar enrichment scores (see details in DNAcopy description https://www.bioconductor.org/packages/devel/bioc/vignettes/DNAcopy/inst/doc/DNAcopy.pdf) to larger intervals and calculates a final score for each interval. 
+	
+OUTPUT: 
+* Item 1
+sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095
+sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.pdf
+sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.DNAcopyout
+	In *.DNAcopyout columns are: scaffold, start position of first window in the interval, start position of last window in the interval, number of merged windows, averaged enrichment score
+
