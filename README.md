@@ -116,16 +116,27 @@ NOTES:
 		
    3.  Each window has approximately v valid bases, but because window is formed from bed intervals it can have
    
-        - fewer than v bases – in a case if the window hits the end of the scaffold
-	- more than v bases – to avoid breaking of the last added bed interval
+        * - fewer than v bases – in a case if the window hits the end of the scaffold
+	* - more than v bases – to avoid breaking of the last added bed interval
    
    4. For each window the program computes
 
 Q1 – average coverage of valid bases across all merged bed intervals for sample1  
-Q2 – average coverage of valid bases across all merged bed intervals for sample2
-	W1 – is sum of coverages of merged bed interval for sample1
-	W2 – is sum of coverages of merged bed interval for sample2
-	R = W1/W2, if W2>0
-	R = W1/CC0, if W2=0 .
-	If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.
 
+Q2 – average coverage of valid bases across all merged bed intervals for sample2
+
+W1 – is sum of coverages of merged bed interval for sample1
+
+W2 – is sum of coverages of merged bed interval for sample2
+
+R = W1/W2, if W2>0
+
+R = W1/CC0, if W2=0.
+
+If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.
+
+** The program from_unionbed_to_ratio_per_window_CC0_v2 calculates R differently: R = Q1/Q2 or Q1/CC0, if Q2=0.
+
+OUTPUT: sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500
+
+Columns are: scaffold, window_start, size_of_window, number_of_valid_bases_in_window, Q1, Q2, R
