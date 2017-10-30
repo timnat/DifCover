@@ -73,7 +73,8 @@ OUTPUT:  *.DNAcopyout.up_p file with regions of significant coverage difference 
 
 **_Stage by stage usage example_**
 
-*prepare input data*
+**prepare input data**
+
 	cd DifCover
 	cp ./dif_cover_scripts/run_difcover.sh test_data/
 	cd test_data/
@@ -104,14 +105,14 @@ FOLDER_PATH=../dif_cover_scripts
 NOTES:
    1. The program will merge bed intervals constructing stretched windows with v valid bases.
    
-   2. Valid bases satisfy following conditions  
+   2. For _C1_ and _C2_ being coverage values for sample1 and sample2 respectfully, valid bases satisfy following conditions  
    
-          1) _C1_ < A and _C2_ < B       **and** 2) _C1_ > a or _C2_ > b.
+   	a) _C1_ < A and _C2_ < B       **and**    b) _C1_ > a or _C2_ > b.
 		
    3.  Each window has approximately v valid bases, but because window is formed from bed intervals it can have
    
-   	* - fewer than v bases – in a case if the window hits the end of the scaffold
-	* - more than v bases – to avoid breaking of the last added bed interval
+   	- fewer than v bases – in a case if the window hits the end of the scaffold
+	- more than v bases – to avoid breaking of the last added bed interval
    
    4. For each window the program computes
 
@@ -145,9 +146,9 @@ NOTES:
 	2. First, the enrichment score log2[AC*R] is calculated for each window. Second, DNAcopy merges windows with similar enrichment scores (see details in DNAcopy description https://www.bioconductor.org/packages/devel/bioc/vignettes/DNAcopy/inst/doc/DNAcopy.pdf) to larger intervals and calculates a final score for each interval. 
 	
 OUTPUT: 
-* Item 1
-sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095
-sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.pdf
-sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.DNAcopyout
-	In *.DNAcopyout columns are: scaffold, start position of first window in the interval, start position of last window in the interval, number of merged windows, averaged enrichment score
+* Sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095
+* sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.pdf
+* sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.DNAcopyout
+
+In *.DNAcopyout columns are: scaffold, start position of first window in the interval, start position of last window in the interval, number of merged windows, averaged enrichment score
 
