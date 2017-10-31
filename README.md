@@ -1,13 +1,12 @@
-Welcome to the DifCover wiki!
-## Description
+## _Description_
 The DifCover pipeline aims to identify regions in a reference genome for which the read coverage of one sample (sample1) is significantly different from the read coverage of another sample (sample2) when aligned to a common reference genome. “Significantly different” is determined by user-defined thresholds. The pipeline allows exclusion of regions from consideration based on read coverage. These include regions with low sequence coverage in both samples (regions that are undersampled due to nucleotide content) and regions with exceedingly high sequence coverage (i.e. repetitive sequences). Both cases can be misleading with respect to coverage analyses. The DifCover pipeline is specifically oriented to the analysis of large genomes and can handle very fragmented assemblies. 
 
-## Method
+## _Method_
 The alignment of short reads to a reference genome can be characterized by the depth of coverage computed for each genomic position as number of reads mapped over it. Fluctuations of coverage can often yield variable coverage ratios and may interfere with the identification of regions that differ between samples. In many cases, calculating average coverage ratios over windows can more accurately reflect differences in copy number of the underlying fragments. In practice, the locations and sizes of the windows can be defined in a various ways. Traditional tools already offer solutions that allow computing average coverage over intervals of a fixed size (sambamba) or splitting contig into separate intervals consisting of bases with the same coverage (bedtools). However these tools are not, in and of themselves, well suited in practice for the analysis of large complex genomes with large numbers of gaps and repeats. DifCover addresses these issues by introducing the notion of window “stretching”. Essentially each genomic scaffold is scanned sequentially to form windows of variable size, but with predefined number of bases that have coverage within user-defined limits. These stretched windows allow bridging across under- and over-represented fragments permitting more precise analyses. For each window an average coverage is reported and compared to the coverage of another sample. For highly contiguous genomes, adjacent windows with similar coverage ratios can be combined to generate consensus estimates for larger continuous regions. Finally regions with significant difference in coverage can be extracted for downstream analyses.
 
 =====================================================
 
-## USAGE
+## _USAGE_
 ### Prerequisites (MUST be in your PATH)
 	BEDTOOLS
 	SAMTOOLS 
@@ -168,6 +167,6 @@ OUTPUT:
 NOTES:
 1. The script filters from file *.DNAcopyout to *.DNAcopyout.upP fragments with enrichment scores ≥ P, (i.e. fragments where read coverage in sample1 is higher than sample2 ), and to *.DNAcopyout.down-P fragments with enrichment scores ≤-P, (i.e. fragments where coverage in sample2 is higher than sample1 ).
 
-## Methodological Details
+## _Methodological Details_
 DifCover works by comparing average depth of coverage across continuous intervals containing approximately v valid bases. The valid bases are determined by user defined lower and upper limits on depth of coverage for sample1 and sample2, defined respectively by a, A for sample1, and b, B for sample2. Some bases with coverage C1 and C2 are considered to be valid if 1) C1 < A and C2 < B; and also 2) C1 > a or C2 > b.  These upper limits allow identification and masking of segments that contain repeats, while lower limits serve to exclude underrepresented segments – gaps and fragments that are undersampled due to technical bias). In general, we recommend setting upper and lower limits after examining the distribution of read coverages and considering the degree to which the analysis is meant to reflect single-copy vs repetitive sequences. For identification of coverage differences that are focused on characterization of single/low-copy regions we typically assign lower coverage limits to one third of modal coverage and upper limits to 3X of modal coverage.  
 The recruitment of valid bases into windows is done by traversing scaffolds from beginning to end. After the number of valid bases in a window reaches v, the window is closed and analysed. If the end of a scaffold is reached before v valid bases are recruited into the current window, the window is retained only if its size is ≥ l. This approach provides flexibility for balancing between coarse granularity for large scaffolds while permitting the incorporation of short scaffolds of l < size < v, which can be particularly useful for analysis of highly fragmented assemblies. 
