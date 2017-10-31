@@ -40,6 +40,10 @@ Copy DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files 
 Run entire pipeline
 ./run_difcover.sh
 
+## Citation
+
+Lamprey paper
+
 ## Pipeline overview and stage by stage usage example
 The DifCover pipeline includes several bash scripts and one C++ program. They can be run separately stage by stage, to experiment with parameters, or run in a bulk from run_difcover.sh with predefined in it parameters.
 
