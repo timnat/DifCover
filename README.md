@@ -42,7 +42,7 @@ Run entire pipeline
 
 ## Citation
 
-Lamprey paper
+Smith, J. J., N. Timoshevskaya, C. Ye, C. Holt, M. C. Keinath, H. J. Parker, M. E. Cook, J. E. Hess, S. R. Narum, F. Lamanna, H. Kaessmann, V. A. Timoshevskiy, C. K. M. Waterbury, C. Saraceno, L. M. Wiedemann, S. M. C. Robb, C. Baker, E. E. Eichler, D. Hockman, T. Sauka-Spengler, M. Yandell, R. Krumlauf, G. Elgar and C. T. Amemiya (2018). "The sea lamprey germline genome provides insights into programmed genome rearrangement and vertebrate evolution." Nat Genet 50(2): 270-277.
 
 ## Pipeline overview and stage by stage usage example
 The DifCover pipeline includes several bash scripts and one C++ program. They can be run separately stage by stage, to experiment with parameters, or run in a bulk from run_difcover.sh with predefined in it parameters.
