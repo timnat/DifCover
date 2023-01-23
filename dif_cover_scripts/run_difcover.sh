@@ -26,7 +26,7 @@ fi
 
 ## run stage (2)
 echo "# Stage 2"
-$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0_v3 -a $a -A $A -b $b -B $B -v $v -l $l sample1_sample2.unionbedcv
+$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 -a $a -A $A -b $b -B $B -v $v -l $l sample1_sample2.unionbedcv
 if [ ! -s "sample1_sample2.ratio_per_w_CC0_a"$a"_A"$A"_b"$b"_B"$B"_v"$v"_l"$l ]; then
     echo "File "sample1_sample2.ratio_per_w_CC0_a"$a"_A"$A"_b"$b"_B"$B"_v"$v"_l"$l is empty, exit now"; 
     exit;
