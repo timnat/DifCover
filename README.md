@@ -24,6 +24,7 @@ Download DifCover
 
 cd DifCover/dif_cover_scripts/
 chmod +x *sh		#make bash scripts executable
+make
 
 Copy DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files and replace parameters with your values
 
