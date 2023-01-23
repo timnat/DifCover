@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#Changed interface compare to v2
+#DifCover version 3 (changed interface compare to version 2)
 
-FOLDER_PATH=../dif_cover_scripts_v3
+FOLDER_PATH=../dif_cover_scripts
 
 BAM1='sample1.bam'
 BAM2='sample2.bam'
