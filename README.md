@@ -16,7 +16,7 @@ The alignment of short reads to a reference genome can be characterized by the d
 ### Quick start
 The DifCover pipeline includes several bash scripts and one C++ program. They can be run separately stage by stage, to experiment with parameters, or run in a bulk from run_difcover.sh with predefined in it parameters. This section gives an example on how to run entire pipeline.
 
-INPUT: two coordinate sorted BAM files presenting short read alignments from two samples to the same reference
+INPUT: two coordinate sorted BAM files presenting read alignments (mostly tested on short reads, but can work on long reads too) from two samples to the same reference
 
 OUTPUT: *.DNAcopyout.upP file with regions of significant coverage difference (p-fragments).  Format details can be found in the next section.
 
@@ -125,18 +125,9 @@ NOTES:
 
 	Q2 – average coverage of valid bases across all merged bed intervals for sample2
 
-	W1 – is sum of coverages of merged bed interval for sample1
+	if Q2=0, than R=Q1/CC0; else R = Q1/Q2.
 
-	W2 – is sum of coverages of merged bed interval for sample2
-
-	R = W1/W2, if W2>0
-
-	R = W1/CC0, if W2=0
-
-	If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.
-5. ** The program from_unionbed_to_ratio_per_window_CC0_v2 calculates R differently: 
-
-        if Q2=0, than R=Q1/CC0; else R = Q1/Q2.
+	If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.      
 
 ### run stage (3)
 $FOLDER_PATH/from_ratio_per_window__to__DNAcopy_output.sh sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500 1.095
@@ -146,7 +137,7 @@ OUTPUT:
 * sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.pdf
 * sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.DNAcopyout
 
-In *.DNAcopyout columns are: scaffold, start position of first window in the interval, start position of last window in the interval, number of merged windows, averaged enrichment score
+In *.DNAcopyout columns are: scaffold, start position of first window in the interval, start position of last window in the interval, number of merged windows, enrichment score
 
 NOTES:
 1. AC = 1.095 is an Adjustment Coefficient that allows to take in an account initial difference in the amount of sampling or produced coverage for each sample. We recommend compute AC as ratio (modal coverage of sample2)/(modal coverage of sample1). Modal coverage for each sample can be calculated using generated with samtools stats histogram for per base coverage (samtools stats sample1.bam | grep). 
