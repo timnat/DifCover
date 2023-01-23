@@ -1,5 +1,5 @@
 ## _Description_
-The DifCover pipeline aims to identify regions in a reference genome for which the read coverage of one sample (sample1) is significantly different from the read coverage of another sample (sample2) when aligned to a common reference genome. “Significantly different” is determined by user-defined thresholds. The pipeline allows exclusion of regions from consideration based on read coverage. These include regions with low sequence coverage in both samples (regions that are undersampled due to nucleotide content) and regions with exceedingly high sequence coverage (i.e. repetitive sequences). Both cases can be misleading with respect to coverage analyses. The DifCover pipeline is specifically oriented to the analysis of large genomes and can handle very fragmented assemblies. 
+The _DifCover_ pipeline aims to identify regions in a reference genome for which the read coverage of one sample (sample1) is significantly different from the read coverage of another sample (sample2) when aligned to a common reference genome. “Significantly different” is determined by user-defined thresholds. The pipeline allows exclusion of regions from consideration based on read coverage. These include regions with low sequence coverage in both samples (regions that are undersampled due to nucleotide content) and regions with exceedingly high sequence coverage (i.e. repetitive sequences). Both cases can be misleading with respect to coverage analyses. The DifCover pipeline is specifically oriented to the analysis of large genomes and can handle very fragmented assemblies. 
 
 ## _Method_
 The alignment of short reads to a reference genome can be characterized by the depth of coverage computed for each genomic position as number of reads mapped over it. Fluctuations of coverage can often yield variable coverage ratios and may interfere with the identification of regions that differ between samples. In many cases, calculating average coverage ratios over windows can more accurately reflect differences in copy number of the underlying fragments. In practice, the locations and sizes of the windows can be defined in a various ways. Traditional tools already offer solutions that allow computing average coverage over intervals of a fixed size (sambamba) or splitting contig into separate intervals consisting of bases with the same coverage (bedtools). However these tools are not, in and of themselves, well suited in practice for the analysis of large complex genomes with large numbers of gaps and repeats. DifCover addresses these issues by introducing the notion of window “stretching”. Essentially each genomic scaffold is scanned sequentially to form windows of variable size, but with predefined number of bases that have coverage within user-defined limits. These stretched windows allow bridging across under- and over-represented fragments permitting more precise analyses. For each window an average coverage is reported and compared to the coverage of another sample. For highly contiguous genomes, adjacent windows with similar coverage ratios can be combined to generate consensus estimates for larger continuous regions. Finally regions with significant difference in coverage can be extracted for downstream analyses.
@@ -18,13 +18,16 @@ The DifCover pipeline includes several bash scripts and one C++ program. They ca
 
 INPUT: two coordinate sorted BAM files presenting read alignments (mostly tested on short reads, but can work on long reads too) from two samples to the same reference
 
-OUTPUT: *.DNAcopyout.upP file with regions of significant coverage difference (p-fragments).  Format details can be found in the next section.
+OUTPUT: *.DNAcopyout.up{p} file with regions of significant coverage difference (p-fragments).  Format details can be found in the next section.
 
 Download DifCover
 
+cd DifCover/dif_cover_scripts/
+chmod +x *sh		#make bash scripts executable
+
 Copy DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files and replace parameters with your values
 
-	FOLDER_PATH='path to dif_cover_scripts directory'
+	FOLDER_PATH='path to dif_cover_scripts/ directory'
 	BAM1='path to sample1.bam'
 	BAM2='path to sample2.bam'
 	a=10		# minimum coverage for sample1
@@ -34,13 +37,15 @@ Copy DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files 
 	v=1000	        # target number of valid bases in stretched windows
 	l=500		# minimum size of window to output
 	AC=1.095	# Adjustment Coefficient (set AC to 1, if modal coverage is equal) 
-	P=2		# enrichment scores threshold (for P=2 will report regions with coverage in sample1 being roughly 4 times larger than coverage in sample2)
+	p=2		# enrichment scores threshold (for p=2 will report regions with coverage in sample1 being roughly 4 times larger than coverage in sample2)
 	bin=1		# for an auxiliary analytical stage (5); generates enrichment scores histogram with scores in bins with floating precision 1. For more detailed histogram use 10, 100.
 
 Run entire pipeline
 ./run_difcover.sh
 
 ## Citation
+
+Nataliya Timoshevskaya, Kaan İ. Eşkut, Vladimir A. Timoshevskiy, Sofia M. C. Robb, Carson Holt, Jon E. Hess, Hugo J. Parker, Cindy F. Baker, Allison K. Miller, Cody Saraceno , Mark Yandell, Robb Krumlauf, Shawn R. Narum, Ralph Lampman, Neil J. Gemmell, Jacquelyn Mountcastle, Bettina Haase, Jennifer R. Balacco, Giulio Formenti, Sarah Pelan, Ying Sims, Kerstin Howe, Olivier Fedrigo , Erich D. Jarvis, Jeramiah J. Smith (2023). "An improved sea lamprey (_Petromyzon marinus_) germline genome assembly illuminates the evolution of germline-specific chromosomes." In review
 
 Smith, J. J., N. Timoshevskaya, C. Ye, C. Holt, M. C. Keinath, H. J. Parker, M. E. Cook, J. E. Hess, S. R. Narum, F. Lamanna, H. Kaessmann, V. A. Timoshevskiy, C. K. M. Waterbury, C. Saraceno, L. M. Wiedemann, S. M. C. Robb, C. Baker, E. E. Eichler, D. Hockman, T. Sauka-Spengler, M. Yandell, R. Krumlauf, G. Elgar and C. T. Amemiya (2018). "The sea lamprey germline genome provides insights into programmed genome rearrangement and vertebrate evolution." Nat Genet 50(2): 270-277.
 
@@ -49,9 +54,9 @@ The DifCover pipeline includes several bash scripts and one C++ program. They ca
 
 INPUT: coordinate sorted files in BAM format for two samples and mandatory parameters (explained for each stage below) 
 
-OUTPUT:  *.DNAcopyout.upP file with regions of significant coverage difference (P-fragments). Intermediate files (explained for each stage below).
+OUTPUT:  *.DNAcopyout.up{p} file with regions of significant coverage difference (p-fragments). Intermediate files (explained for each stage below).
 
-    <<  sample1.bam, sample2.bam, a, A, b, B, v, l, AC, P >>
+    <<  sample1.bam, sample2.bam, a, A, b, B, v, l, AC, p >>
 
 		        \/
 
@@ -67,20 +72,21 @@ OUTPUT:  *.DNAcopyout.upP file with regions of significant coverage difference (
 
 	    	        \/
 
-    (4)  from_DNAcopyout_to_p_fragments.sh (P)
+    (4)  from_DNAcopyout_to_p_fragments.sh (p)
 
 	    	        \/
 
-           << P-fragments >>
+           << p-fragments >>
 
 ## Stage by stage usage example
 ### Prepare input data
 
     cd DifCover
+    chmod +x *sh
     cp ./dif_cover_scripts/run_difcover.sh test_data/
     cd test_data/
 
-Open run_difcover.sh in text editor. Set FOLDER_PATH to a path to the directory dif_cover_scripts/
+Open run_difcover.sh in text editor. Set FOLDER_PATH to a path to the dif_cover_scripts/
 
 FOLDER_PATH=../dif_cover_scripts
 
@@ -117,8 +123,8 @@ NOTES:
 
 		2) C1 > a or C2 > b.
 3.  Each window has approximately v valid bases, but because window is formed from bed intervals it can have
-	- fewer than v bases – in a case if the window hits the end of the scaffold
-	- more than v bases – to avoid breaking of the last added bed interval
+	- fewer than _v_ bases – in a case if the window hits the end of the scaffold
+	- more than _v_ bases – to avoid breaking of the last added bed interval
 4. For each window the program computes
 
 	Q1 – average coverage of valid bases across all merged bed intervals for sample1  
@@ -149,7 +155,7 @@ NOTES:
 
 ### run stage (4)
 
-Filter only genomic regions with enrichment scores > P.
+Filter only genomic regions with enrichment scores > p.
 
 $FOLDER_PATH/from_DNAcopyout_to_p_fragments.sh 
 
@@ -160,8 +166,8 @@ OUTPUT:
 * sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095.DNAcopyout.down-2
 	
 NOTES:
-1. The script filters from file *.DNAcopyout to *.DNAcopyout.upP fragments with enrichment scores ≥ P, (i.e. fragments where read coverage in sample1 is higher than sample2 ), and to *.DNAcopyout.down-P fragments with enrichment scores ≤-P, (i.e. fragments where coverage in sample2 is higher than sample1 ).
+1. The script extracts from file *.DNAcopyout fragments with enrichment scores ≥ p and stores them in *.DNAcopyout{p}, (i.e. fragments where read coverage in sample1 is higher than sample2 ), and *.DNAcopyout.down{-p} fragments with enrichment scores ≤-p, (i.e. fragments where coverage in sample2 is higher than sample1 ).
 
 ## _Methodological Details_
 DifCover works by comparing average depth of coverage across continuous intervals containing approximately v valid bases. The valid bases are determined by user defined lower and upper limits on depth of coverage for sample1 and sample2, defined respectively by a, A for sample1, and b, B for sample2. Some bases with coverage C1 and C2 are considered to be valid if 1) C1 < A and C2 < B; and also 2) C1 > a or C2 > b.  These upper limits allow identification and masking of segments that contain repeats, while lower limits serve to exclude underrepresented segments – gaps and fragments that are undersampled due to technical bias). In general, we recommend setting upper and lower limits after examining the distribution of read coverages and considering the degree to which the analysis is meant to reflect single-copy vs repetitive sequences. For identification of coverage differences that are focused on characterization of single/low-copy regions we typically assign lower coverage limits to one third of modal coverage and upper limits to 3X of modal coverage.  
-The recruitment of valid bases into windows is done by traversing scaffolds from beginning to end. After the number of valid bases in a window reaches v, the window is closed and analysed. If the end of a scaffold is reached before v valid bases are recruited into the current window, the window is retained only if its size is ≥ l. This approach provides flexibility for balancing between coarse granularity for large scaffolds while permitting the incorporation of short scaffolds of l < size < v, which can be particularly useful for analysis of highly fragmented assemblies. 
+The recruitment of valid bases into windows is done by traversing scaffolds from beginning to end. After the number of valid bases in a window reaches v, the window is closed and analysed. If the end of a scaffold is reached before v valid bases are recruited into the current window, the window is retained only if its size is ≥ _l_. This approach provides flexibility for balancing between coarse granularity for large scaffolds while permitting the incorporation of short scaffolds of _l_ < size < _v_, which can be particularly useful for analysis of highly fragmented assemblies. 
