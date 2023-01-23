@@ -1,5 +1,5 @@
 
-/* Changed command line processing interface */
+/* Changed command line processing interface compared to v2 */
 
 #include <unistd.h>
 #include <stdio.h>
@@ -12,10 +12,9 @@
 #include <stdlib.h>
 
 #define max_cov 1000000 // Default value for upper limit on depth of coverage
-#define CC0 50    // if summary coverage accross the window is 0, we artificially replace it with CC0 value, which should be approximately a half of read length
+#define CC0 50    // if coverage mass accross the window is 0, we artificially replace it with CC0 value that should be approximately a half of read length
 
 using namespace std;
-
  
 int main( int argc , char** argv ) {
 
@@ -56,6 +55,7 @@ int main( int argc , char** argv ) {
     }
 
    strncat(fname,argv[optind],strlen(argv[optind]));
+   //printf ("fname=%s\n",fname);
      
    std::ifstream unionbed_file( fname ) ;
    if (!unionbed_file) {
@@ -63,7 +63,7 @@ int main( int argc , char** argv ) {
         exit(EXIT_FAILURE);
     }
  
-   printf("Program will run with following parameters:\n file:%s\na=%d\nA=%d\nb=%d\nB=%d\nv=%d\nl=%d\n", fname,a,A,b,B,v,l);
+   printf("Parameters:\na=%d\nA=%d\nb=%d\nB=%d\nv=%d\nl=%d\n", a,A,b,B,v,l);
 
    std::string line;
    string scaf = "", scaf_pred= "header_line", begs, ends, cov1s, cov2s, sample1_name, sample2_name;
@@ -88,12 +88,12 @@ int main( int argc , char** argv ) {
 	 end=atoi(ends.c_str());
  
          getline(ss,sample1_name, '\t');
-	 cout << "sample1 is "<<sample1_name<<endl;
+	 //cout << "sample1 is "<<sample1_name<<endl;
 	
          getline(ss,sample2_name, '\t');
-	 cout << "sample2 is "<< sample2_name<<endl;
+	 //cout << "sample2 is "<< sample2_name<<endl;
 
-    //output header line to result file
+      //output header line to result file
 outfile<<"scaffold\twindow_start\tsize_of_window\tnumber_of_valid_bases_in_window\t"<<sample1_name<<"_av_cov_over_valid_bs\t"<<sample2_name<<"_av_cov_over_valid_bs\tratio=sum_of_cov(sample1)/sum_of_cov(sample2)\n";
 
    if ( unionbed_file ) {
@@ -117,24 +117,23 @@ outfile<<"scaffold\twindow_start\tsize_of_window\tnumber_of_valid_bases_in_windo
 	
          getline(ss,cov2s, '\t');
 	 cov2=atoi(cov2s.c_str());
-	
-
-         
+	 
          //cout << scaf << " " <<beg<<" "<<end<<" "<<cov1<<" "<<cov2<<endl; 
+
 
 	if(scaf_pred != scaf) 
          {
 
 	  if(av_sum_k1 == 0 && av_sum_k2 == 0) 
-              {ratio=CC0*10000;	//both are equal 0, on case if a>0, b>0 it is impossible, so will mean the ERROR	
+              {ratio=CC0*10000;	//both are equal 0, it is impossible when a>0 and b>0 , so will mean the ERROR	
  	       if(k>0) cout<<"There is a window "<< scaf_pred<<" "<<wb<<" with both samples having 0 coverage and k= "<<k<<endl; 	
 	      }
           else
 	      {
 		  if(av_sum_k1 == 0) av_sum_k1=(av_sum_k2<CC0)?av_sum_k2:CC0;   // sample1 == 0 and sample2 >= b; but if av_sum_k2<CC0, - case of misalignment, or alignment on the flank, better to report equal ratio, as both samples are close to ZERO
 		  if(av_sum_k2 == 0) av_sum_k2=(av_sum_k1<CC0)?av_sum_k1:CC0;   // sample1 >=a and sample2 == 0
-            	  //ratio=(float)((int)((av_sum_k1/av_sum_k2)*1000))/1000; //version2
-		  ratio=(float)(av_sum_k1/av_sum_k2);   //version 3
+            	  
+		  ratio=(float)(av_sum_k1/av_sum_k2);
 	       }
  	 
 
@@ -164,27 +163,25 @@ outfile<<"scaffold\twindow_start\tsize_of_window\tnumber_of_valid_bases_in_windo
     if( (cov1>=a || cov2>=b) && (cov1<=A && cov2<=B) ){ 
       k+= end-beg;   
       av_sum_k1+=cov1*(end-beg);      av_sum_k2+=cov2*(end-beg);
-   // cout<<"NT3:"<<"av_sum_k1="<<av_sum_k1<<" "<<av_sum_k1<<" av_sum_k2="<<av_sum_k2<<" "<<av_sum_k2<<"\n";
     }   
 
     if(k>=window_size){
 
 	  if(av_sum_k1 == 0 && av_sum_k2 == 0) 
               {ratio=CC0*10000;	//both are equal 0, on case if a>0, b>0 it is impossible, so will mean the ERROR	
- 	       cout<<"There is a window with both samples having 0 coverage: "<< scaf_pred<<"\t"<<wb<<endl; 	
+ 	       cout<<"Error: there is a window with both samples having 0 coverage: "<< scaf_pred<<"\t"<<wb<<endl; 	
 	      }
           else
 	      {
 		  if(av_sum_k1 == 0) av_sum_k1=(av_sum_k2<CC0)?av_sum_k2:CC0;   // sample1 == 0 and sample2 >= b; but if av_sum_k2<CC0, - case of misalignment, or alignment on the flank, better to report equal ratio, as both samples are close to ZERO
 		  if(av_sum_k2 == 0) av_sum_k2=(av_sum_k1<CC0)?av_sum_k1:CC0;   // sample1 >=a and sample2 == 0
-            	  //ratio=(float)((int)((av_sum_k1/av_sum_k2)*1000))/1000;	//version3
-		  ratio=(float)(av_sum_k1/av_sum_k2);   //version 3
+            	  
+		  ratio=(float)(av_sum_k1/av_sum_k2); 
 	       }
  	  
   	     av1=av_sum_k1/k;
 	     av2=av_sum_k2/k;
-   //    cout <<"NT4:"<<av_sum_k1<<" "<<av_sum_k2<<" "<<k<<"\n";       	
-   //    cout <<"NT1:"<<scaf_pred<<"\t"<<wb<<"\t"<<k<<"\t"<<av_sum_k1<<"\t"<<av_sum_k2<<"\t"<<av1<<"\t"<<av2<<"\t"<<ratio<<"\n"; 
+  
  	    if(r>=l) outfile<<scaf_pred<<"\t"<<wb<<"\t"<<r<<"\t"<<k<<"\t"<<av1<<"\t"<<av2<<"\t"<<ratio<<"\n"; 
           
 	     av_sum_k1=0; av_sum_k2=0;
@@ -208,8 +205,7 @@ outfile<<"scaffold\twindow_start\tsize_of_window\tnumber_of_valid_bases_in_windo
 	      {
 		  if(av_sum_k1 == 0) av_sum_k1=(av_sum_k2<CC0)?av_sum_k2:CC0;   // sample1 == 0 and sample2 >= b; but if av_sum_k2<CC0, - case of misalignment, or alignment on the flank, better to report equal ratio, as both samples are close to ZERO
 		  if(av_sum_k2 == 0) av_sum_k2=(av_sum_k1<CC0)?av_sum_k1:CC0;   // sample1 >=a and sample2 == 0
-            	  ratio=(float)((int)((av_sum_k1/av_sum_k2)*1000))/1000; //version2
-		  ratio=(float)(av_sum_k1/av_sum_k2);   //version 3
+		  ratio=(float)(av_sum_k1/av_sum_k2);  
 	       }
  	 
 	    

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "usage: program *.DNAcopyout.len bin_value_(10 for 0.1, 100 for 0.01, ..)"
+echo "Usage: generate_DNAcopyout_len_histogram.sh *.DNAcopyout.len bin_value, where bin_value is 10 for 0.1, 100 for 0.01, ..."
 echo "This program will compute length of each DNAcopy interval and output length of the whole contig to which that interval belongs. Output must be in *.DNAcopyout.len.hist: log2ratio is binned by 0.1" 
 
 if [ "$#" -ne 2 ]; then
@@ -14,7 +14,10 @@ bin=$2
 awk -v bin="$2" '{print int($5*bin)/bin"\t"$4}' $1 | sort -g -k1 > $1.sort
 
 out=$1.hist_b$bin
-rm $out
+
+if [ ! -s "$out" ]; then
+   rm $out
+fi
 
 v1_pred="qq1"
 s=0
