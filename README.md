@@ -157,7 +157,7 @@ NOTES:
 5. If number of windows is not large or if most scaffolds are covered by a relatively small number of windows, one can directly proceed to filtering or analysis of *.log2adj_1.095 file (with columns: scaffold, window_start, enrichment_score) without running DNAcopy.
 6. This stage generates a *.pdf file that provides visualization of the distribution of enrichment scores and can be helpful in the choice of threshold p for stage 4. Each dot on the plot corresponds to a window. Different scaffolds are represented by alternated groups of green and black dots. Red lines show an average enrichment scores accross merged adjacent windows. Positive scores correspond to enrichment in sample1 compare to sample2, and negative to enrichment in sample2 compare to sample1.
 
-### ------------------------------------- ![DNAcopy_plots](images/DNAcopy_plot_sample.png) -----------------------------------
+### ------------------------------------- ![DNAcopy_plots](images/DNAcopy_plot_.png) -----------------------------------
 
 ### run stage (4)
 
