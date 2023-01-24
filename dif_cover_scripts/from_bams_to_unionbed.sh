@@ -33,7 +33,8 @@ echo "sample2 is for $bam2" >> Renaming.list
 
 echo " "
 echo "1. Computing coverage for files $bam1 and $bam2. Original file names recorded in Renaming.list"
-genomeCoverageBed -bga -ibam $bam1 > sample1.bedcov & genomeCoverageBed -bga -ibam $bam2 > sample2.bedcov
+genomeCoverageBed -bga -ibam $bam1 > sample1.bedcov 
+genomeCoverageBed -bga -ibam $bam2 > sample2.bedcov
 
 echo "2. Calculating length of reference_genome scaffolds from $bam1"
 samtools view -H $bam1 > $bam1.header
