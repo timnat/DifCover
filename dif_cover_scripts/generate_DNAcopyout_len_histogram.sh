@@ -15,7 +15,7 @@ awk -v bin="$2" '{print int($5*bin)/bin"\t"$4}' $1 | sort -g -k1 > $1.sort
 
 out=$1.hist_b$bin
 
-if [ ! -s "$out" ]; then
+if [ -s "$out" ]; then
    rm $out
 fi
 
