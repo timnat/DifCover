@@ -45,7 +45,12 @@ fi
 echo "# Stage 4"
 $FOLDER_PATH/get_DNAcopyout_with_length_of_intervals.sh "sample1_sample2.ratio_per_w_CC0_a"$a"_A"$A"_b"$b"_B"$B"_v"$v"_l"$l".log2adj_"$AC".DNAcopyout" ref.length.Vk1s_sorted
 
+echo "Generate rough histogram with given precision order"
 $FOLDER_PATH/generate_DNAcopyout_len_histogram.sh "sample1_sample2.ratio_per_w_CC0_a"$a"_A"$A"_b"$b"_B"$B"_v"$v"_l"$l".log2adj_"$AC".DNAcopyout.len" $bin
+
+echo "Generate histogram with bins centered at value X reporting scores from [X-0.25 to X+0.25)"
+$FOLDER_PATH/generate_DNAcopyout_len_vs_scores_histogram_bin0.5.sh "sample1_sample2.ratio_per_w_CC0_a"$a"_A"$A"_b"$b"_B"$B"_v"$v"_l"$l".log2adj_"$AC".DNAcopyout.len"
+
 echo " ";
 
 ## run stage (5)
