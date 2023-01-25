@@ -26,8 +26,15 @@ OUTPUT: *.DNAcopyout.up{p} file with regions of significant coverage difference 
 Download DifCover
 
 cd DifCover/dif_cover_scripts/
-chmod +x *sh		#make bash scripts executable
-make
+
+chmod +x *sh		to make bash scripts executable
+
+If binary file **from_unionbed_to_ratio_per_window_CC0** is already compiled but not executable you may need to run 
+
+**chmod +x from_unionbed_to_ratio_per_window_CC0**, otherwise to compile binary **from_unionbed_to_ratio_per_window_CC0** run
+
+make		
+
 
 Copy DifCover/dif_cover_scripts/run_difcover.sh to the directory with BAM files and replace parameters with your values
 
@@ -77,6 +84,10 @@ OUTPUT:  *.DNAcopyout.up{p} file with regions of significant coverage difference
 	    	        \/
 
     (4)  from_DNAcopyout_to_p_fragments.sh (p)
+    
+    (5)  get_DNAcopyout_with_length_of_intervals.sh
+    
+    generate_DNAcopyout_len_histogram.sh OR generate_DNAcopyout_len_vs_scores_histogram_bin0.5.sh
 
 	    	        \/
 
@@ -95,7 +106,7 @@ Open run_difcover.sh in text editor. Set FOLDER_PATH to a path to the dif_cover_
 FOLDER_PATH=../dif_cover_scripts
 
 ### run stage (1)
-$FOLDER_PATH/from_bams_to_unionbed.sh sample1.bam sample2.bam
+	$FOLDER_PATH/from_bams_to_unionbed.sh sample1.bam sample2.bam
 
 OUPUT: 
 * sample1_sample2.unionbedcv
@@ -104,7 +115,7 @@ OUPUT:
 NOTES: This script calls different functions from BEDTOOLS. File sample1_sample2.unionbedcv stores coverage information from both samples, allowing coverage comparisons between them.
 
 ### run stage (2)
-$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv 10 219 10 240 1000 500
+	$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv 10 219 10 240 1000 500
 
 	a=10 		minimum coverage for sample1
 	A=219		maximum coverage for sample1
@@ -140,7 +151,7 @@ NOTES:
 	If coverage of sample2 is zero for a given window, the program employs a conservative continuity correction to prevent division by zero, replacing zero values with an arbitrary small value CC0 corresponding to alignment of 0.5 reads over the interval. CC0 is a predefined constant, but we may update this parameter in the future.      
 
 ### run stage (3)
-$FOLDER_PATH/from_ratio_per_window__to__DNAcopy_output.sh sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500 1.095
+	$FOLDER_PATH/from_ratio_per_window__to__DNAcopy_output.sh sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500 1.095
 
 OUTPUT: 
 * sample1_sample2.ratio_per_w_CC0_a10_A219_b10_B240_v1000_l500.log2adj_1.095
@@ -163,7 +174,7 @@ NOTES:
 
 Filter only genomic regions with enrichment scores > p.
 
-$FOLDER_PATH/from_DNAcopyout_to_p_fragments.sh 
+	$FOLDER_PATH/from_DNAcopyout_to_p_fragments.sh 
 
 sample1_sample2.unionbedcv.ratio_per_w_a2_A48_b2_B54_v1000_l500.log2adj_1.166.DNAcopyout 2
 
@@ -173,6 +184,14 @@ OUTPUT:
 	
 NOTES:
 1. The script extracts from file *.DNAcopyout fragments with enrichment scores ≥ p and stores them in *.DNAcopyout{p}, (i.e. fragments where read coverage in sample1 is higher than sample2 ), and *.DNAcopyout.down{-p} fragments with enrichment scores ≤-p, (i.e. fragments where coverage in sample2 is higher than sample1 ).
+
+### run stage (5)
+
+	get_DNAcopyout_with_length_of_intervals.sh *.DNAcopyout //generates *.len file that reports length of each interval and corresponding score
+
+	generate_DNAcopyout_len_histogram.sh *.DNAcopyout.len 1 //generates rough histogram with given precision order
+
+	generate_DNAcopyout_len_vs_scores_histogram_bin0.5.sh *.DNAcopyout.len //generates histogram with bins centered at value X reporting scores from [X-0.25 to X+0.25)
 
 ## _Methodological Details_
 DifCover works by comparing average depth of coverage across continuous intervals containing approximately v valid bases. The valid bases are determined by user defined lower and upper limits on depth of coverage for sample1 and sample2, defined respectively by a, A for sample1, and b, B for sample2. Some bases with coverage C1 and C2 are considered to be valid if 1) C1 < A and C2 < B; and also 2) C1 > a or C2 > b.  These upper limits allow identification and masking of segments that contain repeats, while lower limits serve to exclude underrepresented segments – gaps and fragments that are undersampled due to technical bias). In general, we recommend setting upper and lower limits after examining the distribution of read coverages and considering the degree to which the analysis is meant to reflect single-copy vs repetitive sequences. For identification of coverage differences that are focused on characterization of single/low-copy regions we typically assign lower coverage limits to one third of modal coverage and upper limits to 3X of modal coverage.  
