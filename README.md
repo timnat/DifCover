@@ -115,7 +115,7 @@ OUPUT:
 NOTES: This script calls different functions from BEDTOOLS. File sample1_sample2.unionbedcv stores coverage information from both samples, allowing coverage comparisons between them.
 
 ### run stage (2)
-	$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv 10 219 10 240 1000 500
+	$FOLDER_PATH/from_unionbed_to_ratio_per_window_CC0 sample1_sample2.unionbedcv -a 10 -A 219 -b 10 -B 240 -v 1000 -l 500
 
 	a=10 		minimum coverage for sample1
 	A=219		maximum coverage for sample1
