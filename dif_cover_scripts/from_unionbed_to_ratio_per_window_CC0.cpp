@@ -20,7 +20,7 @@ int main( int argc , char** argv ) {
 
 
    int opt, a=1, A=max_cov, b=1, B=max_cov, v=1000, l=0; //!!! Default values for parameters !!!!
-   char fname[1000], fff[1000];
+   char fff[1000];
  
    while ((opt = getopt(argc, argv, "a:A:b:B:v:l:")) != -1) {
         switch (opt) {
@@ -54,12 +54,12 @@ int main( int argc , char** argv ) {
         exit(EXIT_FAILURE);
     }
 
-   strncat(fname,argv[optind],strlen(argv[optind]));
+   std::string fname(argv[optind]);
    //printf ("fname=%s\n",fname);
      
    std::ifstream unionbed_file( fname ) ;
    if (!unionbed_file) {
-	fprintf(stderr, "Can't open union.bed file %s\n",fname);	
+	fprintf(stderr, "Can't open union.bed file %s\n",fname.c_str());
         exit(EXIT_FAILURE);
     }
  
